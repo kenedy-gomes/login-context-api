@@ -1,24 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Route, Routes, Link, useNavigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Private from "./pages/Private";
+import { RequireAuth } from "./contexts/Auth/RequireAuth";
+import { useContext } from "react";
+import { AuthContext } from "./contexts/Auth/AuthContext";
 
 function App() {
+  const Navigate = useNavigate();
+  const auth = useContext(AuthContext);
+
+  const handleLogout = async () => {
+    await auth.signout();
+    Navigate("/");
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <header>
+        <h1>Sistema de login</h1>
+        <nav>
+          <Link to="/">
+            <Home />
+          </Link>
+          <Link to="/private">
+            <Private />
+          </Link>
+          {auth.user && <button onClick={handleLogout}>sair</button>}
+        </nav>
       </header>
+      <hr />
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/private"
+          element={
+            <RequireAuth>
+              <Private />
+            </RequireAuth>
+          }
+        />
+      </Routes>
     </div>
   );
 }
